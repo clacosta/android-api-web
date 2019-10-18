@@ -1,6 +1,7 @@
 package br.com.alura.estoque.ui.activity;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,13 +55,27 @@ public class ListaProdutosActivity extends AppCompatActivity {
     }
 
     private void configuraFabSalvaProduto() {
-        FloatingActionButton fabAdicionaProduto = findViewById(R.id.activity_lista_produtos_fab_adiciona_produto);
+        FloatingActionButton fabAdicionaProduto =
+                findViewById(R.id.activity_lista_produtos_fab_adiciona_produto);
         fabAdicionaProduto.setOnClickListener(v -> abreFormularioSalvaProduto());
     }
 
     private void abreFormularioSalvaProduto() {
         new SalvaProdutoDialog(this, produtoCriado ->
-                repository.salva(produtoCriado, adapter::adiciona)).mostra();
+                repository.salva(produtoCriado,
+                        new ProdutosRepository.DadosCarregadosCallback<Produto>() {
+                            @Override
+                            public void quandoSucesso(Produto produtoSalvo) {
+                                adapter.adiciona(produtoSalvo);
+                            }
+
+                            @Override
+                            public void quandoFalha(String erro) {
+                                Toast.makeText(ListaProdutosActivity.this,
+                                        "Não foi possível salvar o produto.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        })).mostra();
     }
 
     private void abreFormularioEditaProduto(int posicao, Produto produto) {
