@@ -47,31 +47,33 @@ public class ListaProdutosActivity extends AppCompatActivity {
     }
 
     private void buscaProdutos() {
-        ProdutoService service = new EstoqueRetrofit().getProdutoService();
-        Call<List<Produto>> call = service.buscaTodos();
+        buscaProdutosInternos();
+    }
+
+    private void buscaProdutosInternos() {
         new BaseAsyncTask<>(dao::buscaTodos,
                 resultado -> {
                     adapter.atualiza(resultado);
-                    new BaseAsyncTask<>(() -> {
-                        try {
-                            Response<List<Produto>> response = call.execute();
-                            List<Produto> produtosNovos = response.body();
-                            dao.salva(produtosNovos);
-                            return dao.buscaTodos();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        return dao.buscaTodos();
-                    }, produtosNovos -> {
-                        if (produtosNovos != null) {
-                            adapter.atualiza(produtosNovos);
-                        } else {
-                            Toast.makeText(this,
-                                    "Não foi possível buscar os produtos da API",
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    buscaProdutosNaApi();
                 }).execute();
+    }
+
+    private void buscaProdutosNaApi() {
+        ProdutoService service = new EstoqueRetrofit().getProdutoService();
+        Call<List<Produto>> call = service.buscaTodos();
+        new BaseAsyncTask<>(() -> {
+            try {
+                Response<List<Produto>> response = call.execute();
+                List<Produto> produtosNovos = response.body();
+                dao.salva(produtosNovos);
+                return dao.buscaTodos();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return dao.buscaTodos();
+        }, produtosNovos -> {
+            adapter.atualiza(produtosNovos);
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private void configuraListaProdutos() {
