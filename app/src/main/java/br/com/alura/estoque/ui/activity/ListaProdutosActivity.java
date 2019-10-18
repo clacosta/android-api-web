@@ -3,10 +3,10 @@ package br.com.alura.estoque.ui.activity;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,22 +48,21 @@ public class ListaProdutosActivity extends AppCompatActivity {
     private void buscaProdutos() {
         ProdutoService service = new EstoqueRetrofit().getProdutoService();
         Call<List<Produto>> call = service.buscaTodos();
-
-        new BaseAsyncTask<>(()-> {
+        new BaseAsyncTask<>(() -> {
             try {
                 Response<List<Produto>> response = call.execute();
                 List<Produto> produtosNovos = response.body();
-                return produtosNovos;
+                dao.salva(produtosNovos);
+                return dao.buscaTodos();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return null;
+            return dao.buscaTodos();
         }, produtosNovos -> {
-            if(produtosNovos != null){
+            if (produtosNovos != null) {
                 adapter.atualiza(produtosNovos);
-            }
-            else {
-                Toast.makeText( this,
+            } else {
+                Toast.makeText(this,
                         "Não foi possível buscar os produtos da API",
                         Toast.LENGTH_LONG).show();
             }
