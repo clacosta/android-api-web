@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.List;
+
 import br.com.alura.estoque.R;
 import br.com.alura.estoque.asynctask.BaseAsyncTask;
 import br.com.alura.estoque.database.EstoqueDatabase;
@@ -35,7 +37,19 @@ public class ListaProdutosActivity extends AppCompatActivity {
         EstoqueDatabase db = EstoqueDatabase.getInstance(this);
         dao = db.getProdutoDAO();
         repository = new ProdutosRepository(dao);
-        repository.buscaProdutos(adapter::atualiza);
+        repository.buscaProdutos(new ProdutosRepository.DadosCarregadosCallback<List<Produto>>() {
+            @Override
+            public void quandoSucesso(List<Produto> produtos) {
+                adapter.atualiza(produtos);
+            }
+
+            @Override
+            public void quandoFalha(String erro) {
+                Toast.makeText(ListaProdutosActivity.this,
+                        "Não foi possível carregar os produtos.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void configuraListaProdutos() {
