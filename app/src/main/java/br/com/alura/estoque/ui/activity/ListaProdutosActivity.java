@@ -1,5 +1,6 @@
 package br.com.alura.estoque.ui.activity;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -48,28 +49,29 @@ public class ListaProdutosActivity extends AppCompatActivity {
     private void buscaProdutos() {
         ProdutoService service = new EstoqueRetrofit().getProdutoService();
         Call<List<Produto>> call = service.buscaTodos();
-        new BaseAsyncTask<>(() -> {
-            try {
-                Response<List<Produto>> response = call.execute();
-                List<Produto> produtosNovos = response.body();
-                dao.salva(produtosNovos);
-                return dao.buscaTodos();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return dao.buscaTodos();
-        }, produtosNovos -> {
-            if (produtosNovos != null) {
-                adapter.atualiza(produtosNovos);
-            } else {
-                Toast.makeText(this,
-                        "Não foi possível buscar os produtos da API",
-                        Toast.LENGTH_LONG).show();
-            }
-        }).execute();
-//        new BaseAsyncTask<>(dao::buscaTodos,
-//                resultado -> adapter.atualiza(resultado))
-//                .execute();
+        new BaseAsyncTask<>(dao::buscaTodos,
+                resultado -> {
+                    adapter.atualiza(resultado);
+                    new BaseAsyncTask<>(() -> {
+                        try {
+                            Response<List<Produto>> response = call.execute();
+                            List<Produto> produtosNovos = response.body();
+                            dao.salva(produtosNovos);
+                            return dao.buscaTodos();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return dao.buscaTodos();
+                    }, produtosNovos -> {
+                        if (produtosNovos != null) {
+                            adapter.atualiza(produtosNovos);
+                        } else {
+                            Toast.makeText(this,
+                                    "Não foi possível buscar os produtos da API",
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                }).execute();
     }
 
     private void configuraListaProdutos() {
