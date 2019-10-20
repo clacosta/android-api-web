@@ -4,7 +4,7 @@ import android.content.Context;
 
 import br.com.alura.estoque.model.Produto;
 
-public class EditaProdutoDialog extends FormularioProdutoDialog {
+public class    EditaProdutoDialog extends FormularioProdutoDialog {
 
     private static final String TITULO = "Editando produto";
     private static final String TITULO_BOTAO_POSITIVO = "Editar";
