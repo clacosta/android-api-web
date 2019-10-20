@@ -7,6 +7,7 @@ import br.com.alura.estoque.database.dao.ProdutoDAO;
 import br.com.alura.estoque.model.Produto;
 import br.com.alura.estoque.retrofit.EstoqueRetrofit;
 import br.com.alura.estoque.retrofit.callback.BaseCallback;
+import br.com.alura.estoque.retrofit.callback.NoReturnCallback;
 import br.com.alura.estoque.retrofit.service.ProdutoService;
 import retrofit2.Call;
 
@@ -115,9 +116,9 @@ public class ProdutosRepository {
 
     private void removeNaApi(Produto produto, DadosCarregadosCallback<Void> callback) {
         Call<Void> call = service.remove(produto.getId());
-        call.enqueue(new BaseCallback<>(new BaseCallback.RespostaCallback<Void>() {
+        call.enqueue(new NoReturnCallback(new NoReturnCallback.RespostaCallback() {
             @Override
-            public void quandoSucesso(Void resultado) {
+            public void quandoSucesso() {
                 removeInterno(produto, callback);
             }
 
