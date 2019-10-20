@@ -1,8 +1,11 @@
 package br.com.alura.estoque.repository;
 
+import android.content.Context;
+
 import java.util.List;
 
 import br.com.alura.estoque.asynctask.BaseAsyncTask;
+import br.com.alura.estoque.database.EstoqueDatabase;
 import br.com.alura.estoque.database.dao.ProdutoDAO;
 import br.com.alura.estoque.model.Produto;
 import br.com.alura.estoque.retrofit.EstoqueRetrofit;
@@ -16,8 +19,9 @@ public class ProdutosRepository {
     private final ProdutoDAO dao;
     private final ProdutoService service;
 
-    public ProdutosRepository(ProdutoDAO dao) {
-        this.dao = dao;
+    public ProdutosRepository(Context context) {
+        EstoqueDatabase db = EstoqueDatabase.getInstance(context);
+        dao = db.getProdutoDAO();
         service = new EstoqueRetrofit().getProdutoService();
     }
 
